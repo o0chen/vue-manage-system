@@ -19,6 +19,7 @@
 </template>
 
 <script>
+    import Qs from 'qs'
     export default {
         data: function(){
             return {
@@ -41,7 +42,20 @@
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         localStorage.setItem('ms_username',this.ruleForm.username);
-                        this.$router.push('/');
+                        this.$axios.post("/login",Qs.stringify({
+                            username:this.ruleForm.username,
+                            password:this.ruleForm.password
+                        }),{
+                            headers:{
+                                'Content-Type':'application/x-www-form-urlencoded'
+                            }
+                        }).then(res=>{
+                            this.msg =res.data
+                            console.log(res);
+                        }).catch(err=>{
+                            console.log(err)
+                        });
+                        //this.$router.push('/');
                     } else {
                         console.log('error submit!!');
                         return false;
@@ -50,6 +64,8 @@
             }
         }
     }
+
+
 </script>
 
 <style scoped>

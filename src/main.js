@@ -1,14 +1,17 @@
+'use strict'
 import Vue from 'vue';
 import App from './App';
 import router from './router';
 import axios from 'axios';
 import ElementUI from 'element-ui';
+
 import 'element-ui/lib/theme-chalk/index.css';    // 默认主题
 // import '../static/css/theme-green/index.css';       // 浅绿色主题
 import "babel-polyfill";
-
 Vue.use(ElementUI, { size: 'small' });
+axios.defaults.baseURL=process.env.API_ROOT;
 Vue.prototype.$axios = axios;
+
 
 //使用钩子函数对路由进行权限跳转
 router.beforeEach((to, from, next) => {
@@ -30,7 +33,30 @@ router.beforeEach((to, from, next) => {
     }
 })
 
+
+
+// 创建axios实例
+/*const service = axios.create({
+    baseURL: process.env.BASE_API, // api的base_url
+    timeout: 5000 // 请求超时时间
+})*/
+
+
+
+// request拦截器
+/*axios.interceptors.request.use(config => {
+    // Do something before request is sent
+    return config
+}, error => {
+    // Do something with request error
+    console.log(error) // for debug
+    Promise.reject(error)
+})*/
+
+
 new Vue({
     router,
     render: h => h(App)
 }).$mount('#app');
+
+
