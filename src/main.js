@@ -9,7 +9,8 @@ import 'element-ui/lib/theme-chalk/index.css';    // 默认主题
 // import '../static/css/theme-green/index.css';       // 浅绿色主题
 import "babel-polyfill";
 Vue.use(ElementUI, { size: 'small' });
-axios.defaults.baseURL=process.env.API_ROOT;
+//axios.defaults.baseURL=process.env.API_ROOT;
+axios.defaults.withCredentials=true;
 Vue.prototype.$axios = axios;
 
 
@@ -31,6 +32,23 @@ router.beforeEach((to, from, next) => {
             next();
         }
     }
+})
+
+// 拦截器 每个接口加token
+axios.interceptors.request.use(function(config) {
+    return config;
+})
+// 没有就重新登录
+axios.interceptors.response.use(function(response) {
+    return response
+}, function(error) {//我的这个是直接走的失败401 status 如果你想走成功的回调就走上边的 具体走哪个还是你们同后端商量统一就好
+
+    if (error.response.status == 401) {
+       router.replace({
+           name: 'login'
+        })
+    }
+    return Promise.reject(error) // 返回接口返回的错误信息
 })
 
 

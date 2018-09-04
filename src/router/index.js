@@ -70,6 +70,12 @@ export default new Router({
                     path: '/permission',
                     component: resolve => require(['../components/page/Permission.vue'], resolve),
                     meta: { title: '权限测试', permission: true }
+                },
+                {
+                    // 用户列表
+                    path: '/customer',
+                    component: resolve => require(['../components/page/customerList.vue'], resolve),
+                    meta: { title: '用户列表', permission: true }
                 }
             ]
         },

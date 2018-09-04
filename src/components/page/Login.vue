@@ -42,7 +42,7 @@
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         localStorage.setItem('ms_username',this.ruleForm.username);
-                        this.$axios.post("/login",Qs.stringify({
+                        this.$axios.post("/api/login",Qs.stringify({
                             username:this.ruleForm.username,
                             password:this.ruleForm.password
                         }),{
@@ -50,11 +50,17 @@
                                 'Content-Type':'application/x-www-form-urlencoded'
                             }
                         }).then(res=>{
-                            this.msg =res.data
-                            console.log(res);
+                            console.log(res)
+                            if(res.data.code==0&&res.data.success==true){
+                                this.$router.push('/');
+                            }else{
+                                alert(res.data.message);
+                            }
                         }).catch(err=>{
                             console.log(err)
                         });
+
+
                         //this.$router.push('/');
                     } else {
                         console.log('error submit!!');

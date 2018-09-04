@@ -1,7 +1,7 @@
 <template>
     <div class="sidebar">
         <el-menu class="sidebar-el-menu" :default-active="onRoutes" :collapse="collapse" background-color="#324157"
-            text-color="#bfcbd9" active-text-color="#20a0ff" unique-opened router>
+                 text-color="#bfcbd9" active-text-color="#20a0ff" unique-opened router>
             <template v-for="item in items">
                 <template v-if="item.subs">
                     <el-submenu :index="item.index" :key="item.index">
@@ -97,6 +97,17 @@
             }
         },
         created(){
+            this.$axios.post("/api/index/user-menus",{}).then(res=>{
+                console.log(res)
+               var data={
+                    icon: 'el-icon-warning',
+                    index: 'customer',
+                    title: res.data.data[0].name
+                }
+                this.items.push(data);
+            }) .catch(res=>{
+                    console.log(res)
+                });
             // 通过 Event Bus 进行组件间通信，来折叠侧边栏
             bus.$on('collapse', msg => {
                 this.collapse = msg;
