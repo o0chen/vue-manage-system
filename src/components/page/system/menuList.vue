@@ -79,9 +79,10 @@
             treeClick(data){
                 //获取当前树节点数据
                 this.$axios.get("/api/index/getmenu",{
-                    id:data.id
+                    params:{id:data.id}
                 }).then(res=>{
-                    console.log(res)
+                    this.ruleForm=res.data.data;
+                    console.log(this.ruleForm)
                 }).catch(res=>{
                     alert(res.status);
                     console.log(res);
