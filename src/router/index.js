@@ -73,9 +73,9 @@ export default new Router({
                 },
                 {
                     // 用户列表
-                    path: '/customer',
-                    component: resolve => require(['../components/page/customerList.vue'], resolve),
-                    meta: { title: '用户列表', permission: true }
+                    path: '/menuList',
+                    component: resolve => require(['../components/page/system/menuList.vue'], resolve),
+                    meta: { title: '菜单列表', permission: true }
                 }
             ]
         },
