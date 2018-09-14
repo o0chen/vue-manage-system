@@ -96,18 +96,18 @@
                 return this.$route.path.replace('/','');
             }
         },
-        created(){
-            this.$axios.post("/api/index/user-menus",{}).then(res=>{
-                console.log(res)
-               var data={
-                    icon: 'el-icon-warning',
-                    index: 'customer',
-                    title: res.data.data[0].name
-                }
-                this.items.push(data);
-            }) .catch(res=>{
+        methods:{
+            getData(){
+                this.$axios.post("/api/index/user-menus",{}).then(res=>{
+                    this.items=res.data.data;
+                    console.log(this.items)
+                }) .catch(res=>{
                     console.log(res)
                 });
+            }
+        },
+        created(){
+            this.getData();
             // 通过 Event Bus 进行组件间通信，来折叠侧边栏
             bus.$on('collapse', msg => {
                 this.collapse = msg;
