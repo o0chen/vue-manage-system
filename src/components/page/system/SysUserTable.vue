@@ -98,8 +98,9 @@
         name: 'sysUsertable',
         data() {
             return {
-                url: '/user/test1',
-                optionsUrl: '/options/getByTypes',
+                // url: '/api/user/test1',
+                url: '/api/base/listSysUserByPage',
+                optionsUrl: '/api/options/getByTypes',
                 tableData: [],
                 page:{
                     cur_page: 1,
@@ -121,13 +122,7 @@
                     address: ''
                 },
                 options:{
-                    roles:[{
-                        value: '选项1',
-                        label: '黄金糕'
-                    }, {
-                        value: '选项2',
-                        label: '双皮奶'
-                    }]
+                    roles:[]
                 },
                 idx: -1
             }
@@ -137,15 +132,15 @@
         },
         computed: {
             data() {
-                console.log(this.tableData)
+                console.log(this.tableData);
                 return this.tableData.filter((d) => {
                     let is_del = false;
-                    for (let i = 0; i < this.del_list.length; i++) {
-                        if (d.name === this.del_list[i].name) {
-                            is_del = true;
-                            break;
-                        }
-                    }
+                    // for (let i = 0; i < this.del_list.length; i++) {
+                    //     if (d.name === this.del_list[i].name) {
+                    //         is_del = true;
+                    //         break;
+                    //     }
+                    // }
                     if (!is_del) {
                             return d;
                     }
@@ -164,7 +159,7 @@
                 this.page.cur_page = val;
                 this.getData();
             },
-            // 获取 easy-mock 的模拟数据
+            // 获取数据
             getData() {
                 // 开发环境使用 easy-mock 数据，正式环境使用 json 文件
                 // if (process.env.NODE_ENV === 'development') {
@@ -181,12 +176,7 @@
                     this.page.total_size=res.data.totalElements;
                     this.page.cur_page=res.data.number+1;
                 });
-                // let typesArr=[];
-                // for(let key in this.options){
-                //     if(!!key){
-                //         typesArr.push(key);
-                //     }
-                // }
+
                 this.$axios.post(this.optionsUrl,this.options).then((res) => {
                     console.log(res);
                     this.options = res.data;
@@ -194,6 +184,8 @@
             },
             search() {
                 this.is_search = true;
+                //查询中
+
             },
             formatter(row, column) {
                 return formatDate(row.createDate,'yyyy-MM-dd hh:mm:ss');

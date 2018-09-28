@@ -76,6 +76,12 @@ export default new Router({
                     path: '/menuList',
                     component: resolve => require(['../components/page/system/menuList.vue'], resolve),
                     meta: { title: '菜单列表', permission: true }
+                },
+                {
+                    // 用户列表
+                    path: '/sysUserTable',
+                    component: resolve => require(['../components/page/system/SysUserTable.vue'], resolve),
+                    meta: { title: '用户列表', permission: false }
                 }
             ]
         },
