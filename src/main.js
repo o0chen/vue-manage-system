@@ -34,20 +34,30 @@ router.beforeEach((to, from, next) => {
     }
 })
 
+let loadi;
 // 拦截器 每个接口加token
 axios.interceptors.request.use(function(config) {
+    loadi=ElementUI.Loading.service({
+        lock: true,
+        text: 'Loading',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
+    });
     return config;
 })
 // 没有就重新登录
 axios.interceptors.response.use(function(response) {
+    loadi.close();
     var res=response.data;
-    console.log(res);
+    console.log(response);
     if(res.code==-999){
         router.replace("/login");
+    }else if(res.code!=0){
+        this.$message.error('错误信息：'+res.message);
     }
-    return response
+    return res
 }, function(error) {//我的这个是直接走的失败401 status 如果你想走成功的回调就走上边的 具体走哪个还是你们同后端商量统一就好
-
+    loadi.close();
     if (error.response.status == 401) {
        router.replace("/login")
     }
@@ -77,7 +87,7 @@ axios.interceptors.response.use(function(response) {
 
 new Vue({
     router,
-    render: h => h(App)
+    render: h => h(App),
 }).$mount('#app');
 
 

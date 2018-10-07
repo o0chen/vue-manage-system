@@ -99,7 +99,7 @@
         methods:{
             getData(){
                 this.$axios.post("/api/index/user-menus",{}).then(res=>{
-                    this.items=res.data.data;
+                    this.items=res.data;
                     console.log(this.items)
                 }) .catch(res=>{
                     console.log(res)

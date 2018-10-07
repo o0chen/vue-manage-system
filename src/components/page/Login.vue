@@ -51,10 +51,10 @@
                             }
                         }).then(res=>{
                             console.log(res)
-                            if(res.data.code==0&&res.data.success==true){
+                            if(res.code==0&&res.success==true){
                                 this.$router.push('/');
                             }else{
-                                alert(res.data.message);
+                                this.$message.error(res.data.message);
                             }
                         }).catch(err=>{
                             console.log(err)
