@@ -124,6 +124,7 @@
     import TableTd from '../component/TableTd'
     // import {tableData} from '../component/tableData.js'
     import Qs from 'qs'
+    import Extend from 'extend'
 
     export default {
         name: 'sysUserTable',
@@ -135,6 +136,7 @@
                 saveOrUpdateUrl: '/api/base/saveOrUpdateSysUser',
                 tableColumns: [],
                 tableData: [],
+                tableBakData: [],
                 page: {
                     cur_page: 1,
                     page_size: 10,
@@ -235,6 +237,9 @@
                 this.$axios.post(this.url, Qs.stringify(queryParams), config).then((res) => {
                     console.log(res.data)
                     this.tableData = res.data.content;
+                   // this.tableBakData=this.deepClone(this.tableData);
+                    Extend(true,this.tableBakData,this.tableData);//深度克隆
+                    alert(this.tableBakData===this.tableBakData);
                     this.page.total_size = res.data.totalElements;
                     this.page.cur_page = res.data.number + 1;
                 });
@@ -242,7 +247,7 @@
                 this.$axios.post(this.optionsUrl, this.options).then((res) => {
                     console.log(res);
                     this.options = res.data;
-                    this.bakOptions = {...this.options};
+                    this.bakOptions = {...this.options};//浅复制
                     //这样才能保证传过去的select_data不为空
                     this.tableColumns = [
                         {
@@ -296,6 +301,8 @@
                 this.idx = index;
                 //方式一 ：表格编辑
                 this.tableData[index].editable=true;//表格编辑
+                console.log(JSON.stringify(this.tableData[index]));
+                console.log(JSON.stringify(this.tableBakData[index]));
                 // var temp=this.tableData[index];//表格编辑数据发生变化才重新渲染。。。。这个坑
                 this.hackReset = false;
                 this.$nextTick(() => {
@@ -304,8 +311,7 @@
                 //按钮替换
 
 
-
-              /*  //方式一 ：弹窗编辑
+              /*  //方式二 ：弹窗编辑
                 const item = this.tableData[index];
                 // alert(Qs.stringify(item))
                 Object.assign(this.form, item);
@@ -333,14 +339,14 @@
             },
             // 保存编辑
             saveEdit() {
-                console.log(this.$refs['form'])
+                // console.log(this.$refs['form'])
                 this.$refs['form'].validate((valid) => {
                     if (valid) {
                         this.$axios.post(this.saveOrUpdateUrl, this.form).then((res) => {
                             console.log(res.data)
                             this.$message.success(`修改第 ${this.idx + 1} 行成功`);
                             //修改行数据
-                            this.tableData[this.idx]=Object.assign(this.tableData[this.idx], this.form);
+                            this.tableData[this.idx]=Object.assign(this.tableData[this.idx], this.form);//浅克隆
                         });
                         this.editVisible = false;
                     } else {
@@ -348,36 +354,63 @@
                         return false;
                     }
                 });
-            },saveRowEdit(index, row,obj) {
-                    console.log(this.$refs['td']);
-                    console.log(row);
-                    //怎么定位到行？？？然后验证
-                    this.$refs['td'][index].validate((valid) => {
+            },
+            saveRowEdit(index, row,obj) {
+                let rowColNum = this.$refs['td'].length / this.page.page_size;
+                let i = 0;
+                let passed=true;
+                // console.log(rowColNum);
+                // console.log(this.$refs['td']);
+                while (i < rowColNum) {
+                    let indx=index * rowColNum + i;
+                    this.$refs['td'][indx].validate((valid,invalidFields) => {
                         if (valid) {
-                            this.$axios.post(this.saveOrUpdateUrl, this.tableData[index]).then((res) => {
-                                console.log(res.data)
-                                this.$message.success(`修改第 ${index+1} 行成功`);
-                                this.tableData[index].editable=false;
-                                this.hackReset = false;
-                                this.$nextTick(() => {
-                                    this.hackReset = true;
-                                });
-                            });
-                        } else {
-                            console.log('error submit!!');
+
+                        }else {
+                            passed=false;
+                            console.log(invalidFields);
+                            for (let key in invalidFields ) {
+                                this.$message.error(invalidFields[key][0].message);
+                            }
                             return false;
                         }
                     });
-            },cancelRowEdit(index, row) {
+                    i++;
+                }
+
+                if(passed){
+                    console.log(this.tableData[index]);
+                    this.$axios.post(this.saveOrUpdateUrl, this.tableData[index]).then((res) => {
+                        console.log(res.data)
+                        this.$message.success(`修改第 ${index + 1} 行成功`);
+                        this.tableData[index].editable = false;
+                        Extend(true,this.tableBakData[index],this.tableData[index]);
+                        this.hackReset = false;
+                        this.$nextTick(() => {
+                            this.hackReset = true;
+                        });
+                    });
+                }
+                console.log("i="+i);
+                console.log(rowColNum);
+
+            },
+            cancelRowEdit(index, row) {
+                console.log(JSON.stringify(this.tableData[index]));
+                console.log(JSON.stringify(this.tableBakData[index]));
+                // this.tableData[index]=Object.assign( this.tableData[index],this.tableBakData[index]);//浅克隆
+                Extend(true,this.tableData[index],this.tableBakData[index]);//深度克隆
+                //this.tableBakData=this.deepClone(this.tableBakData);
                 this.tableData[index].editable = false;
                 this.hackReset = false;
                 this.$nextTick(() => {
                     this.hackReset = true;
                 });
-            },sortChange(column, prop, order){
-                console.log(column)
-                console.log(prop)
-                console.log(order)
+            },
+            sortChange(column, prop, order){
+                // console.log(column)
+                // console.log(prop)
+                // console.log(order)
                 if(column.order.startsWith("asc")){
                     // this.query.sort=column.prop;
                     this.query.sort=column.column.property;
@@ -414,6 +447,10 @@
                 } else { //val为空时，还原数组
                     this.options.roles = this.bakOptions.roles
                 }
+            },deepClone(obj){
+                return JSON.parse(JSON.stringify(obj));
+                // var proto=Object.getPrototypeOf(obj);
+                // return Object.assign({},Object.create(proto),obj);
             }
         },
         components: {
