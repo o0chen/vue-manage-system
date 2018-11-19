@@ -46,3 +46,9 @@
         }
     }
 </script>
+
+<style>
+    .hide {
+        display: none;
+    }
+</style>
