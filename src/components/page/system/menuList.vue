@@ -50,7 +50,8 @@
                             <el-form-item>
                                 <el-button type="primary" @click="submitForm()" >提交</el-button>
                                 <el-button @click="resetForm('ruleForm')">重置</el-button>
-                                <el-button type="danger" @click="addMenuDialog()" >添加</el-button>
+                                <el-button type="danger" @click="deleteMenu()">删除</el-button>
+                                <el-button type="success" @click="addMenuDialog()" >添加</el-button>
                             </el-form-item>
                         </el-form>
                     </div>
@@ -116,7 +117,7 @@
                     label:'name',
                     children:'subs'
                 },
-
+                thisTreeData:null,
                 fullscreenLoading: false,
                 ruleForm:{
                 },
@@ -158,6 +159,7 @@
                 })
             },
             treeClick(data){
+                this.thisTreeData=data;
                 //获取当前树节点数据
                 this.$axios.get("/api/index/getmenu",{
                     params:{id:data.id}
@@ -187,7 +189,10 @@
                         message: '提交成功',
                         type: 'success'
                     });
-                    getTreeData();
+                    //树形菜单名称更新
+                    this.thisTreeData.name=this.ruleForm.name;
+                    this.thisTreeData.title=this.ruleForm.name;
+                    //getTreeData();
                 }).catch(res=>{
                     alert(res.status);
                     console.log(res);
@@ -217,10 +222,8 @@
                 this.chiRuleFormVisible = false;
                 this.$refs.chiRuleForm.resetFields();
             },handleDrop(before,after,inner, ev) {
-                console.log('tree drop: ', before.label, after.label,inner);
-                console.log('tree drop: ', before, after,inner);
                 //before 当前拖拽节点   after最后进入节点   inner位置
-                this.$axios.post("/api/index/updatemenu",{draggingNode:before.id, dropNode:after.id, type:inner}).
+                this.$axios.post("/api/index/dragmenu",{draggingNode:before.data.id, dropNode:after.data.id, type:inner}).
                 then(
                     res=>{
                         console.log(res);
@@ -231,7 +234,13 @@
                     }
                 )
 
-                console.log(ev);
+
+            },deleteMenu(){
+                //删除树形节点
+                this.$message({
+                    message: '暂时不支持删除功能',
+                    type: 'warning'
+                });
             }
         }
     }
