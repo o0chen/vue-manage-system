@@ -8,6 +8,7 @@
         <div class="container">
             <div class="handle-box">
                 <el-button type="primary" icon="delete" class="hide handle-del mr10" @click="delAll">批量删除</el-button>
+                <el-button type="primary" icon="add" class="handle-del mr10" @click="handleAdd">添加</el-button>
                 <!--  <el-select v-model="select_role" placeholder="筛选省份" class="handle-select mr10">
                       <el-option key="1" label="广东省" value="广东省"></el-option>
                       <el-option key="2" label="湖南省" value="湖南省"></el-option>
@@ -71,7 +72,7 @@
         </div>
 
         <!-- 编辑弹出框 -->
-        <el-dialog title="编辑" :visible.sync="editVisible" width="30%">
+        <el-dialog :title="formTitle" :visible.sync="editVisible" width="30%">
             <el-form ref="form" :model="form" :rules="rules" label-width="100px">
                 <el-form-item label="创建日期">
                     <el-date-picker placeholder="选择日期"
@@ -107,6 +108,8 @@
             </span>
         </el-dialog>
 
+
+
         <!-- 删除提示框 -->
         <el-dialog title="提示" :visible.sync="delVisible" width="300px" center>
             <div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
@@ -121,10 +124,11 @@
 <script>
     import {formatDate} from '../../utils/dateUtil.js'
     import {myValidater} from '../../utils/myValidater.js'
+    import {commonUtils} from '../../utils/commonUtils.js'
     import TableTd from '../component/TableTd'
     // import {tableData} from '../component/tableData.js'
     import Qs from 'qs'
-    import Extend from 'extend'
+    import extend from 'extend'
 
     export default {
         name: 'sysUserTable',
@@ -150,6 +154,7 @@
                 del_list: [],
                 is_search: false,
                 editVisible: false,
+                addVisible: false,
                 delVisible: false,
                 form: {
                     id: '',
@@ -238,8 +243,8 @@
                     console.log(res.data)
                     this.tableData = res.data.content;
                    // this.tableBakData=this.deepClone(this.tableData);
-                    Extend(true,this.tableBakData,this.tableData);//深度克隆
-                    alert(this.tableBakData===this.tableBakData);
+                    extend(true,this.tableBakData,this.tableData);//深度克隆
+                    // alert(this.tableBakData===this.tableBakData);
                     this.page.total_size = res.data.totalElements;
                     this.page.cur_page = res.data.number + 1;
                 });
@@ -297,6 +302,22 @@
             filterTag(value, row) {
                 return row.tag === value;
             },
+            handleAdd(){
+
+                let addJson={}
+                for(let i in this.tableColumns){
+                    addJson=commonUtils.cutStringKeyToJsonKey(this.tableColumns[i].dataKey,addJson)
+                }
+                //方式一 ：表格编辑
+               /* addJson.editable=true;//表格编辑
+                this.tableData.push(addJson);*/
+
+                //方式二
+                Object.assign(this.form, addJson);
+                this.editVisible=true;
+
+
+            },
             handleEdit(index, row) {
                 this.idx = index;
                 //方式一 ：表格编辑
@@ -339,16 +360,21 @@
             },
             // 保存编辑
             saveEdit() {
-                // console.log(this.$refs['form'])
+                console.log(this.$refs['form'])
+                let optext="修改第" +(this.idx + 1) +"行成功";
+                if(!this.form.id){
+                    optext="添加成功"
+                }
                 this.$refs['form'].validate((valid) => {
                     if (valid) {
+                        console.log(this.form);
                         this.$axios.post(this.saveOrUpdateUrl, this.form).then((res) => {
                             console.log(res.data)
-                            this.$message.success(`修改第 ${this.idx + 1} 行成功`);
+                            this.$message.success(optext);
                             //修改行数据
-                            this.tableData[this.idx]=Object.assign(this.tableData[this.idx], this.form);//浅克隆
+                            extend(this.tableData[this.idx], res.data);
                         });
-                        this.editVisible = false;
+                        // this.editVisible = false;
                     } else {
                         console.log('error submit!!');
                         return false;
@@ -356,7 +382,7 @@
                 });
             },
             saveRowEdit(index, row,obj) {
-                let rowColNum = this.$refs['td'].length / this.page.page_size;
+                let rowColNum = this.tableColumns.length;
                 let i = 0;
                 let passed=true;
                 // console.log(rowColNum);
@@ -380,11 +406,16 @@
 
                 if(passed){
                     console.log(this.tableData[index]);
+                    let optext="修改第" +(index + 1) +"行成功";
+                    if(!this.tableData[index].id){
+                        optext="添加成功"
+                    }
                     this.$axios.post(this.saveOrUpdateUrl, this.tableData[index]).then((res) => {
-                        console.log(res.data)
-                        this.$message.success(`修改第 ${index + 1} 行成功`);
+                        console.log(res.data);
+                        this.$message.success(optext);
+                        extend(true,this.tableData[index],res.data);
                         this.tableData[index].editable = false;
-                        Extend(true,this.tableBakData[index],this.tableData[index]);
+                        extend(true,this.tableBakData[index],this.tableData[index]);
                         this.hackReset = false;
                         this.$nextTick(() => {
                             this.hackReset = true;
@@ -399,9 +430,13 @@
                 console.log(JSON.stringify(this.tableData[index]));
                 console.log(JSON.stringify(this.tableBakData[index]));
                 // this.tableData[index]=Object.assign( this.tableData[index],this.tableBakData[index]);//浅克隆
-                Extend(true,this.tableData[index],this.tableBakData[index]);//深度克隆
-                //this.tableBakData=this.deepClone(this.tableBakData);
-                this.tableData[index].editable = false;
+                if(!this.tableData[index].id){
+                    this.tableData.splice(index,1);
+                }else {
+                    extend(true,this.tableData[index],this.tableBakData[index]);//深度克隆
+                    //this.tableBakData=this.deepClone(this.tableBakData);
+                    this.tableData[index].editable = false;
+                }
                 this.hackReset = false;
                 this.$nextTick(() => {
                     this.hackReset = true;
@@ -435,7 +470,8 @@
                 {
                     this.options.roles = this.bakOptions.roles;
                 }
-            }*/, test(val) {
+            }*/,
+            test(val) {
                 console.log("@@!!@@" + JSON.stringify(this.bakOptions));
                 if (val) {
                     //val存在
@@ -447,11 +483,8 @@
                 } else { //val为空时，还原数组
                     this.options.roles = this.bakOptions.roles
                 }
-            },deepClone(obj){
-                return JSON.parse(JSON.stringify(obj));
-                // var proto=Object.getPrototypeOf(obj);
-                // return Object.assign({},Object.create(proto),obj);
             }
+
         },
         components: {
             TableTd

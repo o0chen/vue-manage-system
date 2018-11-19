@@ -252,7 +252,8 @@
         methods: {
             validate (cb){
                this.$refs['td'].validate(cb);
-            },selectSearch(val) {
+            },
+            selectSearch(val) {
                 if (!this.bakOptions) return;
                 if (!!val) { //val存在
                     this.col.select_data = this.bakOptions.filter((item) => {
@@ -272,7 +273,8 @@
                 } else {
                     console.log("this.bakOptions 为空");
                 }
-            }, inputQuerySearch(queryString, cb) {
+            },
+            inputQuerySearch(queryString, cb) {
                 var res = this.inputQueryItems;
                 var results = queryString ? res.filter(this.createFilter(queryString)) : res;
                 // 调用 callback 返回建议列表的数据
@@ -288,9 +290,15 @@
                     for(let i=0;i< col.select_data.length;i++){
                         let item=col.select_data[i];
                         if(item.value==key){
+                            if(col.is_date){//系统默认返回时间，需要截取
+                                return item.label.substring(0,10);
+                            }
                             return item.label;
                         }
                     }
+                }
+                if(col.is_date){//系统默认返回时间，需要截取
+                    return key.substring(0,10);
                 }
                 return key;
             }
