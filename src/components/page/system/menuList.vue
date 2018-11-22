@@ -8,7 +8,7 @@
         <div class="container">
             <el-row :gutter="10">
                 <el-col :span="6"><div class="grid-content bg-purple">
-                    <el-tree :data="treeData" @node-click="treeClick" node-key="id" :default-checked-keys="[1]" :default-expanded-keys="[1]"
+                    <el-tree :data="treeData" @node-click="treeClick" node-key="id" :default-expanded-keys='defId' :default-checked-keys='defId'
                              :props="defaultProps"
                              draggable
                              @node-drop="handleDrop">
@@ -111,6 +111,7 @@
         thisdata:null,
         data() {
             return {
+                defId:['1'],
                 tableData: [],
                 treeData:[],
                 defaultProps:{

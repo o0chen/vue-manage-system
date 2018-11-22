@@ -82,6 +82,11 @@ export default new Router({
                     path: '/sysUserTable',
                     component: resolve => require(['../components/page/system/SysUserTable.vue'], resolve),
                     meta: { title: '用户列表', permission: false }
+                },
+                {
+                    path:'/SysRoleTable',
+                    component: resolve => require(['../components/page/system/SysRoleTable.vue'], resolve),
+                    meta: { title: '角色管理', permission: true }
                 }
             ]
         },

@@ -12,9 +12,9 @@ body,
     overflow: hidden;
 }
 
-body {
-    font-family: 'PingFang SC', "Helvetica Neue", Helvetica, "microsoft yahei", arial, STHeiTi, sans-serif;
-}
+    body {
+        font-family: 'PingFang SC', "Helvetica Neue", Helvetica, "microsoft yahei", arial, STHeiTi, sans-serif;
+    }
 
 a {
     text-decoration: none
