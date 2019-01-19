@@ -56,7 +56,8 @@ axios.interceptors.response.use(function(response) {
     if(res.code==-999){
         router.replace("/login");
     }else if(res.code!=0){
-        this.$message.error('错误信息：'+res.message);
+        if(!!this&&!!this.$message)
+            this.$message.error('错误信息：'+res.message);
     }
     return res;
 }, function(error) {//我的这个是直接走的失败401 status 如果你想走成功的回调就走上边的 具体走哪个还是你们同后端商量统一就好

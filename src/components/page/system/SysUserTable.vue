@@ -134,6 +134,7 @@
         name: 'sysUserTable',
         data() {
             return {
+                formTitle:"",
                 url: '/api/base/listSysUserByPage',
                 deleteUrl: '/api/base/l_deleteSysUserById',
                 optionsUrl: '/api/options/getByTypes',

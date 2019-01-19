@@ -187,15 +187,16 @@
                 ).then(res=>{
                     console.log(res);
                     this.$message({
-                        message: '提交成功',
-                        type: 'success'
+                        message: res.message,
+                        type: res.success
                     });
                     //树形菜单名称更新
                     this.thisTreeData.name=this.ruleForm.name;
                     this.thisTreeData.title=this.ruleForm.name;
                     //getTreeData();
                 }).catch(res=>{
-                    alert(res.status);
+                    // alert(res.status);
+                    // this.$message.error('出错了');
                     console.log(res);
                 })
             }, addMenuDialog (){
@@ -209,13 +210,13 @@
                 ).then(res=>{
                     console.log(res);
                     this.$message({
-                        message: '添加成功',
-                        type: 'success'
+                        message: res.message,
+                        type: res.success
                     });
                     //添加菜单
                     this.chiRuleFormVisible=false;
                 }).catch(res=>{
-                    alert(res.status);
+                    // this.$message.error('出错了');
                     console.log(res);
                 })
             },resetMenu(){
